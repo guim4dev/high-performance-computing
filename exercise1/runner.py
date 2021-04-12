@@ -3,39 +3,58 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def process_c_resolution() -> None:
-    data_file_path = "./c_resolution/data.csv"
-    data_file = open(data_file_path, "a")
-    subprocess.call(
-        "gcc -Wall -o ./c_resolution/resolution ./c_resolution/resolution.c", shell=True
+def process(language: str, compiler_call: str) -> str:
+    data_file_path = f"./{language}_resolution/data.csv"
+    # create empty data file
+    with open(data_file_path, "w") as data_file:
+        data_file.write("")
+        data_file.close()
+
+    compile = subprocess.call(
+        compiler_call,
+        shell=True,
     )
-    size = 1
-    while size <= 36000:
-        ret_code = subprocess.call(
-            ["./c_resolution/resolution", str(size)], stdout=data_file
-        )
-        size = size * 2
-    data_file.close()
+
+    if compile != 0:
+        raise RuntimeError(f"Couldnt compile {language} file")
+
+    with open(data_file_path, "a") as data_file:
+        size = 1
+        ret_code = 0
+        while ret_code == 0:
+            ret_code = subprocess.call(
+                [f"./{language}_resolution/resolution", str(size)], stdout=data_file
+            )
+            size = size * 2
     return data_file_path
 
 
-def generate_graph(file_path: str, plot_dest: str):
-    dataframe = pd.read_csv(file_path)
-    plt.plot("size", "i_first", data=dataframe, color="blue")
-    plt.plot("size", "j_first", data=dataframe, color="red")
+def generate_graph(file_path: str, plot_dest: str) -> None:
+    dataframe = pd.read_csv(file_path, delimiter=",")
+    dataframe.columns = ["Matrix Dimension", "External i", "External j"]
+    plt.plot("Matrix Dimension", "External i", data=dataframe, color="blue")
+    plt.plot("Matrix Dimension", "External j", data=dataframe, color="red")
     plt.xlabel("N")
-    plt.ylabel("time")
+    plt.ylabel("Time (seconds)")
     plt.legend()
     plt.savefig(plot_dest)
 
 
 def main():
     # First, run C solution
-    data_file_path = process_c_resolution()
+    data_file_path = process(
+        language="c",
+        compiler_call="gcc -Wall -o ./c_resolution/resolution ./c_resolution/resolution.c",
+    )
+    plt.figure(0)
     generate_graph(data_file_path, "./plots/c_resolution.png")
-    # Run Fortran solution
-    # data_file_path = process_fortran_resolution()
-    # generate_graph(data_file_path)
+    # Then, run FORTRAN solution
+    data_file_path = process(
+        language="fortran",
+        compiler_call="gfortran ./fortran_resolution/resolution.f95 -o ./fortran_resolution/resolution",
+    )
+    plt.figure(1)
+    generate_graph(data_file_path, "./plots/fortran_resolution.png")
 
 
 if __name__ == "__main__":

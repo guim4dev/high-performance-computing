@@ -70,6 +70,6 @@ int main(int argc, char *argv[])
     after = clock();
     free(result_vector);
     double difference_ji = ((double)(after - before)) / CLOCKS_PER_SEC;
-    printf("\n%d,%.8f,%.8f", number_of_rows, difference_ij, difference_ji);
+    printf("%d,%.8f,%.8f\n", number_of_rows, difference_ij, difference_ji);
     return 0;
 }
