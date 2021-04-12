@@ -33,7 +33,7 @@ program multiply_matrix_vector
     deallocate(vector)
     deallocate(result_vector)
 
-    print *,size,",",diff_ij,",",diff_ji
+    print *,argument,",",diff_ij,",",diff_ji
 
     contains
 
