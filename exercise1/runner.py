@@ -3,6 +3,18 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
+def run_dinamically(state: tuple(int, int), language: str, data_file) -> (int, int):
+    size = state(0)
+    increment = state(1)
+    ret_code = 0
+    while ret_code == 0:
+        ret_code = subprocess.call(
+            [f"./{language}_resolution/resolution", str(size)], stdout=data_file
+        )
+        size = size + increment
+    return (size, increment)
+
+
 def process(language: str, compiler_call: str) -> str:
     data_file_path = f"./{language}_resolution/data.csv"
     # create empty data file
@@ -19,13 +31,10 @@ def process(language: str, compiler_call: str) -> str:
         raise RuntimeError(f"Couldnt compile {language} file")
 
     with open(data_file_path, "a") as data_file:
-        size = 1
-        ret_code = 0
-        while ret_code == 0:
-            ret_code = subprocess.call(
-                [f"./{language}_resolution/resolution", str(size)], stdout=data_file
-            )
-            size = size * 2
+        state = (1, 2000)
+        while state(1) != 250:
+            state = run_dinamically(state, language, data_file)
+        print(f"Max N value = {state(0)}")
     return data_file_path
 
 
