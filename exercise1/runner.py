@@ -20,12 +20,14 @@ def process(language: str, compiler_call: str) -> str:
 
     with open(data_file_path, "a") as data_file:
         size = 1
-        ret_code = 0
-        while ret_code == 0:
+        while size < 42000:
             ret_code = subprocess.call(
                 [f"./{language}_resolution/resolution", str(size)], stdout=data_file
             )
             size = size * 2
+        subprocess.call(
+            [f"./{language}_resolution/resolution", str(42000)], stdout=data_file
+        )
     return data_file_path
 
 
