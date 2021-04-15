@@ -1,21 +1,10 @@
 import subprocess
 import pandas as pd
+import argparse
 import matplotlib.pyplot as plt
 
 
-def run_dinamically(state: list[int], language: str, data_file) -> list[int]:
-    size = state[0]
-    increment = state[1]
-    ret_code = 0
-    while ret_code == 0:
-        ret_code = subprocess.call(
-            [f"./{language}_resolution/resolution", str(size)], stdout=data_file
-        )
-        size = size + increment
-    return [size, increment]
-
-
-def process(language: str, compiler_call: str) -> str:
+def process(language: str, compiler_call: str, limit: int) -> str:
     data_file_path = f"./{language}_resolution/data.csv"
     # create empty data file
     with open(data_file_path, "w") as data_file:
@@ -31,11 +20,17 @@ def process(language: str, compiler_call: str) -> str:
         raise RuntimeError(f"Couldnt compile {language} file")
 
     with open(data_file_path, "a") as data_file:
-        state = [1, 2000]
-        while state[1] > 125:
-            state = run_dinamically(state, language, data_file)
-            state[1] = state[1]/2
-        print(f"Max N value for language {language} is {state[0]}")
+        size = 1
+        increment = 2000
+        while size < limit:
+            subprocess.call(
+                [f"./{language}_resolution/resolution", str(size)], stdout=data_file
+            )
+            size += increment
+        # call one last time so we can get the last data point
+        subprocess.call(
+            [f"./{language}_resolution/resolution", str(limit)], stdout=data_file
+        )
     return data_file_path
 
 
@@ -50,11 +45,12 @@ def generate_graph(file_path: str, plot_dest: str) -> None:
     plt.savefig(plot_dest)
 
 
-def main():
+def main(limit: int):
     # First, run C solution
     data_file_path = process(
         language="c",
         compiler_call="gcc -Wall -o ./c_resolution/resolution ./c_resolution/resolution.c",
+        limit=limit
     )
     plt.figure(0)
     generate_graph(data_file_path, "./plots/c_resolution.png")
@@ -62,10 +58,13 @@ def main():
     data_file_path = process(
         language="fortran",
         compiler_call="gfortran ./fortran_resolution/resolution.f95 -o ./fortran_resolution/resolution",
+        limit=limit
     )
     plt.figure(1)
     generate_graph(data_file_path, "./plots/fortran_resolution.png")
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("limit", type=int)
+    main(parser.parse_args().limit)
