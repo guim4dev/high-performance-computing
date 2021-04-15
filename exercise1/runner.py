@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def run_dinamically(state: tuple[int, int], language: str, data_file) -> (int, int):
+def run_dinamically(state: list[int], language: str, data_file) -> list[int]:
     size = state[0]
     increment = state[1]
     ret_code = 0
@@ -31,7 +31,7 @@ def process(language: str, compiler_call: str) -> str:
         raise RuntimeError(f"Couldnt compile {language} file")
 
     with open(data_file_path, "a") as data_file:
-        state = (1, 2000)
+        state = [1, 2000]
         while state[1] > 125:
             state = run_dinamically(state, language, data_file)
             state[1] = state[1]/2
