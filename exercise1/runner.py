@@ -32,8 +32,9 @@ def process(language: str, compiler_call: str) -> str:
 
     with open(data_file_path, "a") as data_file:
         state = (1, 2000)
-        while state(1) != 250:
+        while state[1] > 125:
             state = run_dinamically(state, language, data_file)
+            state[1] = state[1]/2
         print(f"Max N value for language {language} is {state[0]}")
     return data_file_path
 
