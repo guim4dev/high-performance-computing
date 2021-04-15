@@ -12,7 +12,7 @@ def run_dinamically(state: list[int], language: str, data_file) -> list[int]:
             [f"./{language}_resolution/resolution", str(size)], stdout=data_file
         )
         size = size + increment
-    return (size, increment)
+    return [size, increment]
 
 
 def process(language: str, compiler_call: str) -> str:
