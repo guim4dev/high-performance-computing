@@ -14,7 +14,7 @@ double *spawn_random_vector(int size)
 
 double **spawn_random_matrix(int size)
 {
-    double **matrix = (double **)malloc((size) * sizeof(double));
+    double **matrix = (double **)malloc((size) * sizeof(double *));
     for (int i = 0; i <= size; i++)
     {
         matrix[i] = spawn_random_vector(size);
