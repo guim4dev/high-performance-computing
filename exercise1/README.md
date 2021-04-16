@@ -21,4 +21,4 @@ To determine the maximum matrix dimension value (n), simply apply the following 
 2n + n^2 = available_bytes / 8
 ```
 
-Edit the file, then Run!
+Edit the file and run!
