@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cmath>
 #include <time.h>
+using namespace std;
 
 typedef double Real;
 
@@ -118,9 +119,12 @@ Real LaplaceSolver :: timeStep(const Real dt)
     int nx = g->nx;
     int ny = g->ny;
     Real **u = g->u;
+    int i;
+    int j;
 
-    for (int i=1; i<nx-1; ++i) {
-        for (int j=1; j<ny-1; ++j) {
+#pragma omp parallel for private(tmp, i, j) shared(u, dx2, dy2) reduction(+ : err)
+    for (i=1; i<nx-1; ++i) {
+        for (j=1; j<ny-1; ++j) {
             tmp = u[i][j];
             u[i][j] = ((u[i-1][j] + u[i+1][j])*dy2 +
                        (u[i][j-1] + u[i][j+1])*dx2)*0.5/(dx2 + dy2);
@@ -148,23 +152,22 @@ Real LaplaceSolver :: solve(const int n_iter, const Real eps)
 int main(int argc, char * argv[])
 {
     int nx, n_iter;
+    const char* number_of_threads = getenv("OMP_NUM_THREADS");
+    Real result;
     Real eps;
-    Real t_start, t_end;
-    std::cout << "Enter nx n_iter eps --> ";
-    std::cin >> nx >> n_iter >> eps;
+    double t_start, t_end;
+    cin >> nx >> n_iter >> eps;
 
     Grid *g = new Grid(nx, nx);
     g->setBCFunc(BC);
 
     LaplaceSolver s = LaplaceSolver(g);
 
-    std::cout <<"nx = " << g->nx << ", ny = " << g->ny 
-              << ", n_iter = " << n_iter << ", eps = "<<eps <<std::endl;
+#pragma omp parallel
+    t_start = omp_get_wtime();
+    result = s.solve(n_iter, eps);
+    t_end = omp_get_wtime();
+    cout << g->nx << "," << t_end - t_start << "," << number_of_threads << "," << result << endl;
 
-    t_start = seconds();
-    std::cout << s.solve(n_iter, eps) << std::endl;
-    t_end = seconds();
-    std::cout << "Iterations took " << t_end - t_start << " seconds.\n";    
-    
     return 0;
 }
