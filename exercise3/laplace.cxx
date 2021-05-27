@@ -122,7 +122,7 @@ Real LaplaceSolver :: timeStep(const Real dt)
     int i;
     int j;
 
-#pragma omp parallel for private(tmp, i, j) shared(u, dx2, dy2) reduction(+ : err)
+#pragma omp parallel for private(tmp, i, j) reduction(+ : err)
     for (i=1; i<nx-1; ++i) {
         for (j=1; j<ny-1; ++j) {
             tmp = u[i][j];
