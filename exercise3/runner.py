@@ -80,13 +80,14 @@ def main() -> None:
         compile_file(compiled_file_dest, call["compilation_orig"], extra_flags)
         run(compiled_file_dest, call["output_file"])
 
-    data = ''
+    data = 'nx, time, n_threads, result, origin_file\n'
     for file in glob("./data/*.csv"):
         with open(file, "r") as current_file:
             lines = current_file.readlines()
             for index in range(len(lines)):
                 line_as_list = lines[index].split(',')
-                line_as_list[-1] = file.split('data/')[1]
+                line_as_list[-1] = line_as_list[-1].rsplit('\n')[0]
+                line_as_list.append(file.split('data/')[1])
                 lines[index] = ",".join(line_as_list) 
             data += "\n".join(lines)
             data += "\n"
